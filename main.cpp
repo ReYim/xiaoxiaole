@@ -3,10 +3,10 @@
 #include <vector>
 using namespace std;
 
-#define right 4
-#define left  1
-#define up    2
-#define down  3
+#define right 1
+#define left  2
+#define up    3
+#define down  4
 
 class Point {
 public:
@@ -38,38 +38,74 @@ public:
   }
 
   int *check(int i, int j, int ijValue, int dir, int *matrix[4]) {
-    //right
     int *result = new int[4];
     for(int k = 0; k < 5; k++) {
       result[k] = 0;
     }
-    if (j + 2 < N && dir != left) {
-      if (ijValue == matrix[i][j+1] && ijValue == matrix[i][j+2]) {
-        result[0] = 1;
-        result[right] = right;
-      }
+    //right
+		int rightCount = 0;
+    if (j + 1 < N && dir != left) {
+			for (int k = j + 1; k < N; k ++) {
+				if (ijValue == matrix[i][k]) {
+					rightCount ++;
+				} else {
+					break;		
+				}
+			}
     }
     //left
-    if ( j - 2 > 0 && dir != right) {
-      if (ijValue == matrix[i][j-1] && ijValue == matrix[i][j-2]) {
-        result[0] = 1;
-        result[left] = left;
-      }
+		int leftCount = 0;
+    if ( j - 1 > -1 && dir != right) {
+			for (int k = j - 1; k > -1; k --) {
+				if (ijValue == matrix[i][k]) {
+					leftCount ++;
+				} else {
+					break;		
+				}
+			}
     }
+		//leftCount + rightCount >= 3
+		if (rightCount + leftCount >= 2) {
+			result[0] = 1;
+			if (rightCount) {
+				result[right] = rightCount;
+			} 
+			if (leftCount) {
+        result[left] = leftCount;
+			}
+		}
     //up
-    if (i - 2 > 0 && dir != down) {
-      if (ijValue == matrix[i - 1][j] && ijValue == matrix[i - 2][j]) {
-        result[0] = 1;
-        result[up] = up;
-      }
+		int upCount = 0;
+    if (i - 1 > -1 && dir != down) {
+			for (int k = i - 1; k > -1; k --) {
+				if (ijValue == matrix[k][j]) {
+					upCount ++;
+				} else {
+					break;
+				}
+			}
     }
     //down
-    if (i + 2 < M && dir != up) {
-      if (ijValue == matrix[i + 1][j] && ijValue == matrix[i + 2][j]) {
-        result[0] = 1;
-        result[down] = down;
-      }
+		int downCount = 0;
+    if (i + 1 < M && dir != up) {
+			for (int k = i + 1; k < M; k ++) {
+				if (ijValue == matrix[k][j]) {
+					downCount ++;
+				} else {
+					break;
+				}
+			}
     }
+		//downCount + upCount >= 3
+		if (downCount + upCount >= 2) {
+			result[0] = 1;
+			if (downCount) {
+				result[down] = downCount;
+			} 
+			if (upCount) {
+        result[up] = upCount;
+			}
+		}
     return result;
   }
 
@@ -296,7 +332,7 @@ int main() {
     {3, 3, 1, 1},
     {3, 4, 3, 3},
     {1, 4, 4, 3},
-    {2, 2, 3, 2},
+    {1, 2, 3, 2},
   };
   cout<<"right:"<<right<<endl;
   cout<<"left:"<<left<<endl;
