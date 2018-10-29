@@ -109,7 +109,7 @@ public:
     return result;
   }
 
-  void xiao(int *matrix[4]) {
+  int xiao(int *matrix[4]) {
     vector<Point> points;
 
     for (int i = 0; i < M; i++) {
@@ -121,19 +121,19 @@ public:
             result[k] = 0;
           }
           int *downSwapResult;
-          int r = matrix[i][j];
-          int d = matrix[i][j];
+          int r = matrix[i][j] == -1 ? -2 : matrix[i][j];
+          int d = matrix[i][j] == -1 ? -2 : matrix[i][j];
           if (i == M - 1) {
-            u = -1;
+            u = -2;
             downSwapResult = result;
           } else {
-            u = matrix[i+1][j];
+						u = matrix[i + 1][j] == -1 ? -2 : matrix[i + 1][j];
             downSwapResult =   check(i + 1 , j, d, down, matrix);
           }
           if (j == N - 1) {
-            l = -1;
+            l = -2;
           } else {
-            l = matrix[i][j+1];
+						l = matrix[i][j + 1] == -1 ? -2 : matrix[i][j + 1];
           }
 
           int *rightSwapResult =  check(i			, j+1, r, right, matrix);
@@ -155,14 +155,23 @@ public:
 
       }
     }
-    cout<<"points size:" << points.size()<< endl;
+		if (points.size() == 0) {
+			return 0;
+		}
+    //cout<<"points size:" << points.size()<< endl;
+		int S = 0;
     for (int i = 0; i < points.size(); i++) {
       Point p = points.at(i);
       int **swapedMatrix = swap(p.x, p.y, p.direction, matrix);
       getScore(swapedMatrix, &p);
-      displayMatrix(swapedMatrix);
-      cout<<"score:"<<p.score<<endl;
+      //displayMatrix(swapedMatrix);
+      //cout<<"score:"<<p.score<<endl;
+			int newScore = xiao(swapedMatrix) + p.score;
+			if (newScore >= S) {
+				S = newScore;	
+			}
     }
+		return S;
   }
   void remove(int *m[4],int x, int y, int count) {
     if (count > 0) {
@@ -177,14 +186,13 @@ public:
   }
   void getScore(int *m[4], Point *point) {
     Point p = *point;
-    int score = 0;
-    cout<<"x:" << p.x<<endl;
-    cout<<"y:" << p.y<<endl;
-    cout<<"direction:" << p.direction<<endl;
-    cout<<"removeDirection left:" << p.removeDirection[left]<<endl;
-    cout<<"removeDirection right:" << p.removeDirection[right]<<endl;
-    cout<<"removeDirection: up" << p.removeDirection[up]<<endl;
-    cout<<"removeDirection:down" << p.removeDirection[down]<<endl;
+    //cout<<"x:" << p.x<<endl;
+    //cout<<"y:" << p.y<<endl;
+    //cout<<"direction:" << p.direction<<endl;
+    //cout<<"removeDirection left:" << p.removeDirection[left]<<endl;
+    //cout<<"removeDirection right:" << p.removeDirection[right]<<endl;
+    //cout<<"removeDirection: up" << p.removeDirection[up]<<endl;
+    //cout<<"removeDirection:down" << p.removeDirection[down]<<endl;
     int X = 0, Y = 0;
     if (p.direction == right) {
       Y = 1;
@@ -199,7 +207,7 @@ public:
       X = -1;
     }
     int removeValue = m[p.x + X][p.y + Y];
-    cout<<"removeValue:" << removeValue<<endl;
+    //cout<<"removeValue:" << removeValue<<endl;
 		if (p.removeDirection[right] && p.removeDirection[left]) {
 			if (p.removeDirection[right]) {
 				for (int j = p.y + Y; j < p.y + Y + p.removeDirection[right] + 1; j++) {
@@ -233,6 +241,16 @@ public:
 			}
 			if (p.removeDirection[up]) {
 				remove(m, p.x + X, p.y + Y, p.removeDirection[up] + 1);
+			}
+		}
+		int scoreArr[3] = {1,4,10};
+    int score = 0;
+		for(int i = 3; i < 6; i++) {
+			if (p.removeDirection[left] + p.removeDirection[right] + 1 == i) {
+				score = scoreArr[i-3];
+			}
+			if (p.removeDirection[down] + p.removeDirection[up] + 1 == i) {
+				score = scoreArr[i-3];
 			}
 		}
     point->score = score;
@@ -311,7 +329,7 @@ int main() {
     }
   }
   XXL xxl(m, n, k);
-  xxl.displayMatrix(matrixPointer);
-  xxl.xiao(matrixPointer);
+  //xxl.displayMatrix(matrixPointer);
+  cout<<xxl.xiao(matrixPointer)<<endl;
   return 0;
 }
