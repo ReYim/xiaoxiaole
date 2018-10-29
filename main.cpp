@@ -164,7 +164,7 @@ public:
       cout<<"score:"<<p.score<<endl;
     }
   }
-  void remove(int *m[4],int x, int y, int count, int dir) {
+  void remove(int *m[4],int x, int y, int count) {
     if (count > 0) {
       for (int i = x; i > -1 ; i--) {
         if (i - count > -1) {
@@ -200,78 +200,41 @@ public:
     }
     int removeValue = m[p.x + X][p.y + Y];
     cout<<"removeValue:" << removeValue<<endl;
-    if (p.removeDirection[right] == right) {
-      for (int j = p.y + Y; j< 4; j++) {
-        if(m[p.x + X][j] == removeValue) {
-          score ++;
-          remove(m, p.x + X, j, 1, right);
-        }
-        else break;
-      }
-      for (int j = p.y + Y - 1; j > - 1; j--) {
-        if(m[p.x + X][j] == removeValue) {
-          score ++;
-          remove(m, p.x + X, j, 1, right);
-        }
-        else break;
-      }
-    }
-    if (p.removeDirection[left] == left) {
-      for (int j = p.y + Y; j > -1; j--) {
-        if(m[p.x + X][j] == removeValue) {
-          score ++;
-          remove(m, p.x + X, j, 1, left);
-        }
-        else break;
-      }
-      for (int j = p.y + Y + 1; j < 4; j++) {
-        if(m[p.x + X][j] == removeValue) {
-          score ++;
-          remove(m, p.x + X, j, 1, left);
-        }
-        else break;
-      }
-    }
-    if (p.removeDirection[down] == down) {
-      int count1 = 0;
-      for (int j = p.x + X; j < 8; j++) {
-        if(m[j][p.y + Y] == removeValue) {
-          score ++;
-          count1 ++;
-        }
-        else break;
-      }
-      int count = 0;
-      for (int j = p.x + X - 1; j > -1; j--) {
-        if(m[j][p.y + Y] == removeValue) {
-          score ++;
-          count ++;
-        }
-        else break;
-      }
-      remove(m, p.x + count1, p.y + Y, count1, down);
-      remove(m, p.x, p.y + Y , count, up);
-    }
-    if (p.removeDirection[up] == up) {
-      int count1 = 0;
-      for (int j = p.x + X; j > -1; j--) {
-        if(m[j][p.y + Y] == removeValue) {
-          score ++;
-          count1 ++;
-        }
-        else break;
-      }
-      int count = 0;
-      for (int j = p.x + X + 1; j < 8 + X; j++) {
-        if(m[j][p.y + Y] == removeValue) {
-          score ++;
-          count ++;
-        }
-        else break;
-      }
-      remove(m, p.x, p.y + Y, count1, up);
-      remove(m, p.x - count, p.y + Y , count, down);
-    }
+		if (p.removeDirection[right] && p.removeDirection[left]) {
+			if (p.removeDirection[right]) {
+				for (int j = p.y + Y; j < p.y + Y + p.removeDirection[right] + 1; j++) {
+					remove(m, p.x + X, j, 1);
+				}
+			}
+			if (p.removeDirection[left]) {
+				for (int j = p.y + Y - 1; j > p.y + Y - p.removeDirection[left] - 1; j--) {
+					remove(m, p.x + X, j, 1);
+				}
+			}
+		} else if ((!p.removeDirection[right] && p.removeDirection[left]) ||(p.removeDirection[right] && !p.removeDirection[left])) {
+			if (p.removeDirection[right]) {
+				for (int j = p.y + Y; j < p.y + Y + p.removeDirection[right] + 1; j++) {
+					remove(m, p.x + X, j, 1);
+				}
+			}
+			if (p.removeDirection[left]) {
+				for (int j = p.y + Y; j > p.y + Y - p.removeDirection[left] - 1; j--) {
+					remove(m, p.x + X, j, 1);
+				}
+			}
+		}
+		if (p.removeDirection[down] && p.removeDirection[up]) {
+			if (p.removeDirection[down]) {
+				remove(m, p.x + X + p.removeDirection[down], p.y + Y, p.removeDirection[down] + 1 + p.removeDirection[up]);
+			}
+		} else if ((p.removeDirection[down] && !p.removeDirection[up]) || (!p.removeDirection[down] && p.removeDirection[up])) {
+			if (p.removeDirection[down]) {
+				remove(m, p.x + X + p.removeDirection[down], p.y + Y, p.removeDirection[down] + 1);
+			}
+			if (p.removeDirection[up]) {
+				remove(m, p.x + X, p.y + Y, p.removeDirection[up] + 1);
+			}
+		}
     point->score = score;
   }
   int **swap(int x, int y, int dir, int *m[4]) {
