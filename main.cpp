@@ -27,14 +27,12 @@ class XXL {
 private:
   int M;
   int N;
-  int K;
-  int score;
 public:
+  int K;
   XXL(int m0=8, int n0=4, int k0=4) {
     M = m0;
     N = n0;
     K = k0;
-    score = 0;
   }
 
   int *check(int i, int j, int ijValue, int dir, int *matrix[4]) {
@@ -110,10 +108,10 @@ public:
   }
 
   int xiao(int *matrix[4]) {
-    vector<Point> points;
-
+		int S = 0;
     for (int i = 0; i < M; i++) {
       for (int j = 0; j < N; j++) {
+				vector<Point> points;
         if (matrix[i][j] > 0) {
           int u, l;
           int *result = new int[4];
@@ -139,40 +137,54 @@ public:
           int *rightSwapResult =  check(i			, j+1, r, right, matrix);
           int *leftSwapResult =   check(i			, j, l, left, matrix);
           int *upSwapResult =     check(i		  , j, u, up, matrix);
-          if (rightSwapResult[0]) {
-            points.push_back(Point(i , j, right, rightSwapResult));
-          }
-          if (leftSwapResult[0]) {
-            points.push_back(Point(i, j + 1, left, leftSwapResult));
-          }
-          if (downSwapResult[0]) {
-            points.push_back(Point(i, j, down, downSwapResult));
-          }
-          if (upSwapResult[0]) {
-            points.push_back(Point(i + 1, j, up, upSwapResult));
-          }
-        }
 
+					int **swapedMatrix = matrix;
+
+					if (leftSwapResult[0] && !rightSwapResult[0]) {
+						points.push_back(Point(i, j + 1, left, leftSwapResult));
+						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+					}
+					if (rightSwapResult[0] && !leftSwapResult[0]) {
+						points.push_back(Point(i , j, right, rightSwapResult));
+						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+					}
+					if (rightSwapResult[0] && leftSwapResult[0]) {
+						points.push_back(Point(i, j + 1, left, leftSwapResult));
+						points.push_back(Point(i , j, right, rightSwapResult));
+						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+					}
+          if (downSwapResult[0] && upSwapResult[0]) {
+            points.push_back(Point(i, j, down, downSwapResult));
+            points.push_back(Point(i + 1, j, up, upSwapResult));
+						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+					}
+          if (downSwapResult[0] && !upSwapResult[0]) {
+            points.push_back(Point(i, j, down, downSwapResult));
+						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+          }
+          if (upSwapResult[0] && !downSwapResult[0]) {
+            points.push_back(Point(i + 1, j, up, upSwapResult));
+						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+          }
+					if(points.size() > 0) {
+						int score = 0;
+						for(int i= 0; i < points.size(); i ++) {
+							K++;
+							Point p = points.at(i);
+							destroy(swapedMatrix, &p);
+							score += p.score;
+						}
+						score = xiao(swapedMatrix) + score; 
+						if( score > S) {
+							S = score;
+						}
+					}
+        }
       }
-    }
-		if (points.size() == 0) {
-			return 0;
-		}
-    //cout<<"points size:" << points.size()<< endl;
-		int S = 0;
-    for (int i = 0; i < points.size(); i++) {
-      Point p = points.at(i);
-      int **swapedMatrix = swap(p.x, p.y, p.direction, matrix);
-      getScore(swapedMatrix, &p);
-      //displayMatrix(swapedMatrix);
-      //cout<<"score:"<<p.score<<endl;
-			int newScore = xiao(swapedMatrix) + p.score;
-			if (newScore >= S) {
-				S = newScore;	
-			}
     }
 		return S;
   }
+
   void remove(int *m[4],int x, int y, int count) {
     if (count > 0) {
       for (int i = x; i > -1 ; i--) {
@@ -184,7 +196,7 @@ public:
       }
     }
   }
-  void getScore(int *m[4], Point *point) {
+  void destroy(int *m[4], Point *point) {
     Point p = *point;
     //cout<<"x:" << p.x<<endl;
     //cout<<"y:" << p.y<<endl;
@@ -302,6 +314,8 @@ public:
 };
 
 int main() {
+	clock_t start,finish;
+	start = clock();
   int m = 8;
   int n = 4;
   int k = 4;
@@ -329,7 +343,10 @@ int main() {
     }
   }
   XXL xxl(m, n, k);
-  //xxl.displayMatrix(matrixPointer);
+  xxl.displayMatrix(matrixPointer);
   cout<<xxl.xiao(matrixPointer)<<endl;
+  cout<<xxl.K<<endl;
+	finish = clock();
+	cout<<double(finish - start)<<"ms"<<endl;
   return 0;
 }
