@@ -138,47 +138,59 @@ public:
           int *leftSwapResult =   check(i			, j, l, left, matrix);
           int *upSwapResult =     check(i		  , j, u, up, matrix);
 
-					int **swapedMatrix = matrix;
+	int **swapedMatrix = matrix;
 
-					if (leftSwapResult[0] && !rightSwapResult[0]) {
-						points.push_back(Point(i, j + 1, left, leftSwapResult));
+	if (leftSwapResult[0] && !rightSwapResult[0] && !downSwapResult[0]&& !upSwapResult[0]) {
+		points.push_back(Point(i, j + 1, left, leftSwapResult));
+		swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+	}
+	if (rightSwapResult[0] && !leftSwapResult[0] && !downSwapResult[0]&& !upSwapResult[0]) {
+		points.push_back(Point(i , j, right, rightSwapResult));
+		swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+	}
+	if (rightSwapResult[0] && leftSwapResult[0]&& !downSwapResult[0]&& !upSwapResult[0]) {
+		points.push_back(Point(i, j + 1, left, leftSwapResult));
+		points.push_back(Point(i , j, right, rightSwapResult));
+		swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+	}
+	  if (downSwapResult[0] && upSwapResult[0] && !leftSwapResult[0]&& !rightSwapResult[0]) {
+	    points.push_back(Point(i, j, down, downSwapResult));
+	    points.push_back(Point(i + 1, j, up, upSwapResult));
 						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
 					}
-					if (rightSwapResult[0] && !leftSwapResult[0]) {
-						points.push_back(Point(i , j, right, rightSwapResult));
+	  if (downSwapResult[0] && !upSwapResult[0] && !leftSwapResult[0]&& !rightSwapResult[0]) {
+	    points.push_back(Point(i, j, down, downSwapResult));
 						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
-					}
-					if (rightSwapResult[0] && leftSwapResult[0]) {
-						points.push_back(Point(i, j + 1, left, leftSwapResult));
-						points.push_back(Point(i , j, right, rightSwapResult));
+	  }
+	  if (upSwapResult[0] && !downSwapResult[0]&& !leftSwapResult[0]&& !rightSwapResult[0]) {
+	    points.push_back(Point(i + 1, j, up, upSwapResult));
 						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
-					}
-          if (downSwapResult[0] && upSwapResult[0]) {
-            points.push_back(Point(i, j, down, downSwapResult));
-            points.push_back(Point(i + 1, j, up, upSwapResult));
-						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
-					}
-          if (downSwapResult[0] && !upSwapResult[0]) {
-            points.push_back(Point(i, j, down, downSwapResult));
-						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
-          }
-          if (upSwapResult[0] && !downSwapResult[0]) {
-            points.push_back(Point(i + 1, j, up, upSwapResult));
-						swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
-          }
-					if(points.size() > 0) {
-						int score = 0;
-						for(int i= 0; i < points.size(); i ++) {
-							K++;
-							Point p = points.at(i);
-							destroy(swapedMatrix, &p);
-							score += p.score;
-						}
-						score = xiao(swapedMatrix) + score; 
-						if( score > S) {
-							S = score;
-						}
-					}
+	  }
+	if ((rightSwapResult[0] || leftSwapResult[0])&& (downSwapResult[0] || upSwapResult[0])) {
+		if (rightSwapResult[0]){
+			points.push_back(Point(i , j, right, rightSwapResult));
+		} else if (leftSwapResult[0]) {
+			points.push_back(Point(i, j + 1, left, leftSwapResult));
+		} else if (downSwapResult[0]) {
+	    		points.push_back(Point(i, j, down, downSwapResult));
+		} else if (upSwapResult[0]) {
+	    		points.push_back(Point(i + 1, j, up, upSwapResult));
+		}
+		swapedMatrix = swap(points.back().x, points.back().y, points.back().direction, swapedMatrix);
+	}
+	if(points.size() > 0) {
+		int score = 0;
+		for(int i= 0; i < points.size(); i ++) {
+			K++;
+			Point p = points.at(i);
+			destroy(swapedMatrix, &p);
+			score += p.score;
+		}
+		score = xiao(swapedMatrix) + score; 
+		if( score > S) {
+			S = score;
+		}
+	}
         }
       }
     }
@@ -220,7 +232,7 @@ public:
     }
     int removeValue = m[p.x + X][p.y + Y];
     //cout<<"removeValue:" << removeValue<<endl;
-		if (p.removeDirection[right] && p.removeDirection[left]) {
+		if (p.removeDirection[right] && p.removeDirection[left] && !p.removeDirection[up]&& !p.removeDirection[down]) {
 			if (p.removeDirection[right]) {
 				for (int j = p.y + Y; j < p.y + Y + p.removeDirection[right] + 1; j++) {
 					remove(m, p.x + X, j, 1);
@@ -231,7 +243,7 @@ public:
 					remove(m, p.x + X, j, 1);
 				}
 			}
-		} else if ((!p.removeDirection[right] && p.removeDirection[left]) ||(p.removeDirection[right] && !p.removeDirection[left])) {
+		} else if ((!p.removeDirection[right] && p.removeDirection[left]) ||(p.removeDirection[right] && !p.removeDirection[left]) && !p.removeDirection[up]&& !p.removeDirection[down]) {
 			if (p.removeDirection[right]) {
 				for (int j = p.y + Y; j < p.y + Y + p.removeDirection[right] + 1; j++) {
 					remove(m, p.x + X, j, 1);
@@ -243,16 +255,28 @@ public:
 				}
 			}
 		}
-		if (p.removeDirection[down] && p.removeDirection[up]) {
+		if (p.removeDirection[down] && p.removeDirection[up]&& !p.removeDirection[right]&& !p.removeDirection[left]) {
 			if (p.removeDirection[down]) {
 				remove(m, p.x + X + p.removeDirection[down], p.y + Y, p.removeDirection[down] + 1 + p.removeDirection[up]);
 			}
-		} else if ((p.removeDirection[down] && !p.removeDirection[up]) || (!p.removeDirection[down] && p.removeDirection[up])) {
+		} else if ((p.removeDirection[down] && !p.removeDirection[up]) || (!p.removeDirection[down] && p.removeDirection[up])&& !p.removeDirection[right]&& !p.removeDirection[left]) {
 			if (p.removeDirection[down]) {
 				remove(m, p.x + X + p.removeDirection[down], p.y + Y, p.removeDirection[down] + 1);
 			}
 			if (p.removeDirection[up]) {
 				remove(m, p.x + X, p.y + Y, p.removeDirection[up] + 1);
+			}
+		}
+		if((p.removeDirection[up] || p.removeDirection[down]) && (p.removeDirection[right] || p.removeDirection[left])) {
+			if (p.removeDirection[right]) {
+				for (int j = p.y + Y; j < p.y + Y + p.removeDirection[right]; j++) {
+					remove(m, p.x + X, j, 1);
+				}
+			}
+			if (p.removeDirection[left]) {
+				for (int j = p.y + Y - 1 ; j > p.y + Y - p.removeDirection[left] - 1; j--) {
+					remove(m, p.x + X, j, 1);
+				}
 			}
 		}
 		int scoreArr[3] = {1,4,10};
